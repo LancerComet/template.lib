@@ -1,0 +1,24 @@
+//
+  -
+      #{APPNAME}
+      Verison: #{VERSION}
+
+
+html
+  head
+    meta(charset="utf-8")
+    title #{APPNAME}
+
+    //- Would turn it on if it was set to false.
+    if INJECT === false
+      each css in htmlWebpackPlugin.files.css
+        link(href="#{css}", rel="stylesheet")
+
+  body
+    div#app
+
+    //- Would turn it on if it was set to false.
+    if INJECT === false
+      div.script-requirement
+        each chunk in htmlWebpackPlugin.files.chunks
+          script(src="#{chunk.entry}")
