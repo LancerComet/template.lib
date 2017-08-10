@@ -1,6 +1,6 @@
 # Wepback Project Template.
 
-> A webpack 2 startkit. Based on Vue webpack template.
+> A webpack 3 startkit. Based on Vue webpack template.
 
 ## Build Setup
 

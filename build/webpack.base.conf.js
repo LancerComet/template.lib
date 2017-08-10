@@ -1,11 +1,7 @@
-var path = require('path')
-var utils = require('./utils/utils')
-var config = require('../config')
-var vueLoaderConfig = require('./vue-loader.conf')
-
-function resolve (dir) {
-  return path.join(__dirname, '..', dir)
-}
+const path = require('path')
+const utils = require('./utils/utils')
+const config = require('../config')
+const vueLoaderConfig = require('./vue-loader.conf')
 
 module.exports = {
   entry: {
@@ -30,9 +26,7 @@ module.exports = {
 
     alias: {
       'vue$': 'vue/dist/vue.common.js',
-      'src': resolve('src'),
-      'assets': resolve('src/assets'),
-      'components': resolve('src/components')
+      'src': resolve('src')
     }
   },
 
@@ -62,8 +56,25 @@ module.exports = {
       },
       {
         test: /\.js$/,
-        loader: 'babel-loader',
+        use: [
+          'cache-loader',
+          'thread-loader',
+          'babel-loader'
+        ],
         include: [resolve('src'), resolve('test')]
+      },
+      {
+        test: /\.tsx?$/,
+        use: [
+          'cache-loader',
+          'thread-loader',
+          'babel-loader',
+          {
+            loader: 'ts-loader',
+            options: { happyPackMode: true }
+          }
+        ],
+        include: ['src', 'test'].map(resolve)
       },
       {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
@@ -83,4 +94,8 @@ module.exports = {
       }
     ]
   }
+}
+
+function resolve (dir) {
+  return path.join(__dirname, '..', dir)
 }
