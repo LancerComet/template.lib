@@ -2,21 +2,44 @@ const path = require('path')
 const webpack = require('webpack')
 const merge = require('webpack-merge')
 
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const OptimizeJsPlugin = require('optimize-js-plugin')
+const OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin')
+
 const utils = require('./utils/utils')
 const config = require('../config')
 const baseWebpackConfig = require('./webpack.base.conf')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const ExtractTextPlugin = require('extract-text-webpack-plugin')
+
 const env = process.env.NODE_ENV === 'testing'
   ? require('../config/envs/env.test.js')
   : config.build.env
 
 const webpackConfig = merge(baseWebpackConfig, {
   module: {
-    rules: utils.styleLoaders({
-      sourceMap: config.build.productionSourceMap,
-      extract: true
-    })
+    rules: [
+      {
+        test: /\.css$/,
+        use: ExtractTextPlugin.extract({
+          fallback: 'vue-style-loader',
+          use: [
+            { loader: 'css-loader', options: { sourceMap: config.build.productionSourceMap, importLoaders: 1 } },
+            'postcss-loader'
+          ]
+        })
+      },
+      {
+        test: /\.styl$/,
+        use: ExtractTextPlugin.extract({
+          fallback: 'vue-style-loader',
+          use: [
+            { loader: 'css-loader', options: { sourceMap: config.build.productionSourceMap, importLoaders: 1 } },
+            'postcss-loader',
+            { loader: 'stylus-loader', options: { sourceMap: config.build.productionSourceMap } }
+          ]
+        })
+      },
+    ]
   },
 
   devtool: config.build.productionSourceMap ? '#source-map' : false,
@@ -33,14 +56,25 @@ const webpackConfig = merge(baseWebpackConfig, {
       'process.env': env
     }, env)),
 
-    new webpack.optimize.UglifyJsPlugin({
-      compress: {
-        warnings: false
-      }
+    new webpack.optimize.ModuleConcatenationPlugin(),
+
+    new webpack.optimize.UglifyJsPlugin(Object.assign({}, require('./uglify.conf'), {
+      sourceMap: config.build.productionSourceMap
+    })),
+
+    new OptimizeJsPlugin({
+      sourceMap: config.build.productionSourceMap
     }),
 
     new ExtractTextPlugin({
       filename: utils.assetsPath('css/[name].[contenthash].css')
+    }),
+
+    new OptimizeCSSPlugin({
+      cssProcessor: require('cssnano'),
+      cssProcessorOptions: {
+        autoprefixer: false
+      }
     }),
 
     new HtmlWebpackPlugin({
@@ -53,10 +87,7 @@ const webpackConfig = merge(baseWebpackConfig, {
         removeComments: true,
         collapseWhitespace: true,
         removeAttributeQuotes: true
-        // more options:
-        // https://github.com/kangax/html-minifier#options-quick-reference
       },
-      // necessary to consistently work with multiple chunks via CommonsChunkPlugin
       chunksSortMode: 'dependency'
     }),
 
@@ -76,7 +107,7 @@ const webpackConfig = merge(baseWebpackConfig, {
 
     new webpack.optimize.CommonsChunkPlugin({
       name: 'manifest',
-      chunks: ['vendor']
+      chunks: Infinity
     })
   ]
 })
