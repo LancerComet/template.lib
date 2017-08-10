@@ -11,6 +11,7 @@ module.exports = {
   entry: {
     app: './src/main.js'
   },
+
   output: {
     path: config.build.assetsRoot,
     filename: '[name].js',
@@ -18,12 +19,15 @@ module.exports = {
       ? config.build.assetsPublicPath
       : config.dev.assetsPublicPath
   },
+
   resolve: {
     extensions: ['.js', '.vue', '.json'],
+
     modules: [
       resolve('src'),
       resolve('node_modules')
     ],
+
     alias: {
       'vue$': 'vue/dist/vue.common.js',
       'src': resolve('src'),
@@ -31,6 +35,7 @@ module.exports = {
       'components': resolve('src/components')
     }
   },
+
   module: {
     rules: [
       {
