@@ -1,46 +1,82 @@
-var path = require('path')
-var utils = require('./utils/utils')
-var webpack = require('webpack')
-var config = require('../config')
-var merge = require('webpack-merge')
-var baseWebpackConfig = require('./webpack.base.conf')
-var HtmlWebpackPlugin = require('html-webpack-plugin')
-var ExtractTextPlugin = require('extract-text-webpack-plugin')
-var env = process.env.NODE_ENV === 'testing'
+const path = require('path')
+const webpack = require('webpack')
+const merge = require('webpack-merge')
+
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const OptimizeJsPlugin = require('optimize-js-plugin')
+const OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin')
+
+const utils = require('./utils/utils')
+const config = require('../config')
+const baseWebpackConfig = require('./webpack.base.conf')
+
+const env = process.env.NODE_ENV === 'testing'
   ? require('../config/envs/env.test.js')
   : config.build.env
 
-var webpackConfig = merge(baseWebpackConfig, {
+const webpackConfig = merge(baseWebpackConfig, {
   module: {
-    rules: utils.styleLoaders({
-      sourceMap: config.build.productionSourceMap,
-      extract: true
-    })
+    rules: [
+      {
+        test: /\.css$/,
+        use: ExtractTextPlugin.extract({
+          fallback: 'vue-style-loader',
+          use: [
+            { loader: 'css-loader', options: { sourceMap: config.build.productionSourceMap, importLoaders: 1 } },
+            'postcss-loader'
+          ]
+        })
+      },
+      {
+        test: /\.styl$/,
+        use: ExtractTextPlugin.extract({
+          fallback: 'vue-style-loader',
+          use: [
+            { loader: 'css-loader', options: { sourceMap: config.build.productionSourceMap, importLoaders: 1 } },
+            'postcss-loader',
+            { loader: 'stylus-loader', options: { sourceMap: config.build.productionSourceMap } }
+          ]
+        })
+      },
+    ]
   },
+
   devtool: config.build.productionSourceMap ? '#source-map' : false,
+
   output: {
     path: config.build.assetsRoot,
     filename: utils.assetsPath('js/[name].[chunkhash].js'),
     chunkFilename: utils.assetsPath('js/[id].[chunkhash].js')
   },
+
   plugins: [
     // http://vuejs.github.io/vue-loader/en/workflow/production.html
     new webpack.DefinePlugin(Object.assign({
       'process.env': env
     }, env)),
 
-    new webpack.optimize.UglifyJsPlugin({
-      compress: {
-        warnings: false
-      }
+    new webpack.optimize.ModuleConcatenationPlugin(),
+
+    new webpack.optimize.UglifyJsPlugin(Object.assign({}, require('./uglify.conf'), {
+      sourceMap: config.build.productionSourceMap
+    })),
+
+    new OptimizeJsPlugin({
+      sourceMap: config.build.productionSourceMap
     }),
-    // extract css into its own file
+
     new ExtractTextPlugin({
       filename: utils.assetsPath('css/[name].[contenthash].css')
     }),
-    // generate dist index.html with correct asset hash for caching.
-    // you can customize output by editing /index.html
-    // see https://github.com/ampedandwired/html-webpack-plugin
+
+    new OptimizeCSSPlugin({
+      cssProcessor: require('cssnano'),
+      cssProcessorOptions: {
+        autoprefixer: false
+      }
+    }),
+
     new HtmlWebpackPlugin({
       filename: process.env.NODE_ENV === 'testing'
         ? 'index.html'
@@ -51,13 +87,10 @@ var webpackConfig = merge(baseWebpackConfig, {
         removeComments: true,
         collapseWhitespace: true,
         removeAttributeQuotes: true
-        // more options:
-        // https://github.com/kangax/html-minifier#options-quick-reference
       },
-      // necessary to consistently work with multiple chunks via CommonsChunkPlugin
       chunksSortMode: 'dependency'
     }),
-    // split vendor js into its own file
+
     new webpack.optimize.CommonsChunkPlugin({
       name: 'vendor',
       minChunks: function (module, count) {
@@ -71,17 +104,16 @@ var webpackConfig = merge(baseWebpackConfig, {
         )
       }
     }),
-    // extract webpack runtime and module manifest to its own file in order to
-    // prevent vendor hash from being updated whenever app bundle is updated
+
     new webpack.optimize.CommonsChunkPlugin({
       name: 'manifest',
-      chunks: ['vendor']
+      chunks: Infinity
     })
   ]
 })
 
 if (config.build.productionGzip) {
-  var CompressionWebpackPlugin = require('compression-webpack-plugin')
+  const CompressionWebpackPlugin = require('compression-webpack-plugin')
 
   webpackConfig.plugins.push(
     new CompressionWebpackPlugin({
@@ -99,7 +131,7 @@ if (config.build.productionGzip) {
 }
 
 if (config.build.bundleAnalyzerReport) {
-  var BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+  const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
   webpackConfig.plugins.push(new BundleAnalyzerPlugin())
 }
 
