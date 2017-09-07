@@ -51,10 +51,6 @@ module.exports = {
         loader: 'jade-loader'
       },
       {
-        test: /\.styl$/,
-        loader: 'stylus-loader'
-      },
-      {
         test: /\.js$/,
         use: [
           'cache-loader',
