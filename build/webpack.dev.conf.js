@@ -41,7 +41,7 @@ module.exports = merge(baseWebpackConfig, {
 
   devServer: {
     host: '0.0.0.0',
-    contentBase: resolve('dev/assets'),
+    contentBase: resolve('static'),
     compress: true,
     port: 8081
   },
