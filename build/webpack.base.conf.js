@@ -5,7 +5,7 @@ const vueLoaderConfig = require('./vue-loader.conf')
 
 module.exports = {
   entry: {
-    app: './src/main.js'
+    app: config.base.app
   },
 
   output: {

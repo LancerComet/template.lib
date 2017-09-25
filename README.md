@@ -2,6 +2,18 @@
 
 > A webpack 3 startkit. Based on Vue webpack template.
 
+## Feature
+
+ - HTML, Jade.
+
+ - JavaScript with ES2016, Typescript with ESNext module.
+
+ - LESS, SASS / SCSS, Stylus.
+
+ - Static files requiring.
+
+ - Cache Loader and Thread Loader are enabled.
+
 ## Build Setup
 
 ``` bash

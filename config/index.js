@@ -11,7 +11,7 @@ const projectRoot = path.resolve(__dirname, '../')
 const STATIC_FILES_URL = `//static-files-path.com`
 
 exports.base = {
-  app: projectRoot + '/src/index.js',  // JS Entry.
+  app: projectRoot + '/src/main.js',  // JS Entry.
   template: projectRoot + '/src/index.jade',  // Temmplate entry.
 
   // Setup HtmlWebpackPlugin injection mode.
