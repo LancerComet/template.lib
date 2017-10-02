@@ -43,7 +43,8 @@ module.exports = merge(baseWebpackConfig, {
     host: '0.0.0.0',
     contentBase: resolve('static'),
     compress: true,
-    port: config.dev.port
+    port: config.dev.port,
+    quiet: true
   },
 
   watch: true
